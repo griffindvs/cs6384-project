@@ -1,0 +1,7 @@
+# Images
+/data/*
+/data_source/*
+/merged/*
+
+# Instruction PDFs
+/instructions/*
