@@ -3,5 +3,7 @@
 /data_source/*
 /merged/*
 
+/dataset/*
+
 # Instruction PDFs
 /instructions/*
