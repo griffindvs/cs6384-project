@@ -7,3 +7,9 @@
 
 # Instruction PDFs
 /instructions/*
+
+# Training outputs
+/figures/*
+/metrics/*
+/models/*
+/runs/*
