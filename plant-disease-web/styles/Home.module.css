@@ -47,7 +47,7 @@
 .title {
   margin: 0;
   line-height: 1.15;
-  font-size: 4rem;
+  font-size: 3rem;
 }
 
 .title,
@@ -118,4 +118,13 @@
     width: 100%;
     flex-direction: column;
   }
+}
+
+.block {
+  display: block;
+}
+
+.colBox {
+  min-width: 18rem;
+  padding-top: 1rem;
 }
