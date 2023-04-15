@@ -32,6 +32,22 @@ function imageDataToTensor(image: Jimp, dims: number[]): Tensor {
     // skip data[i + 3] to filter out the alpha channel
   }
 
+  // 2.5 Normalize channels as needed for ImageNet -> mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225] 
+  // Normalize red
+  for (let i = 0; i < redArray.length; i++) {
+    redArray[i] = (redArray[i] - (0.485 * 255.0)) / (0.229 * 255.0);
+  }
+
+  // Normalize green
+  for (let i = 0; i < greenArray.length; i++) {
+    greenArray[i] = (greenArray[i] - (0.456 * 255.0)) / (0.224 * 255.0);
+  }
+
+  // Normalize blue
+  for (let i = 0; i < blueArray.length; i++) {
+    blueArray[i] = (blueArray[i] - (0.406 * 255.0)) / (0.225 * 255.0);
+  }
+
   // 3. Concatenate RGB to transpose [224, 224, 3] -> [3, 224, 224] to a number array
   const transposedData = redArray.concat(greenArray).concat(blueArray);
 
@@ -40,10 +56,12 @@ function imageDataToTensor(image: Jimp, dims: number[]): Tensor {
   // create the Float32Array size 3 * 224 * 224 for these dimensions output
   const float32Data = new Float32Array(dims[1] * dims[2] * dims[3]);
   for (i = 0; i < l; i++) {
-    float32Data[i] = transposedData[i] / 255.0; // convert to float
+    float32Data[i] = transposedData[i] * 1.0; // convert to float
   }
   // 5. create the tensor object from onnxruntime-web.
   const inputTensor = new Tensor("float32", float32Data, dims);
+  console.log("INPUT TENSOR:");
+  console.log(inputTensor);
   return inputTensor;
 }
 

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, Input } from 'reactstrap';
+import { Button, Input, Row, Col } from 'reactstrap';
 import { inference } from '../utils/predict';
 import styles from '../styles/Home.module.css';
 
@@ -12,9 +12,19 @@ const ImageCanvas = (props: Props) => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   var image: HTMLImageElement;
-  const [topResultLabel, setLabel] = useState("");
-  const [topResultConfidence, setConfidence] = useState("");
-  const [inferenceTime, setInferenceTime] = useState("");
+  const [waiting, setWaiting] = useState("");
+
+  const [rLabel, setRLabel] = useState("");
+  const [rConfidence, setRConfidence] = useState("");
+  const [rTime, setRTime] = useState("");
+
+  const [mLabel, setMLabel] = useState("");
+  const [mConfidence, setMConfidence] = useState("");
+  const [mTime, setMTime] = useState("");
+
+  const [aLabel, setALabel] = useState("");
+  const [aConfidence, setAConfidence] = useState("");
+  const [aTime, setATime] = useState("");
   
   // Load the image from the IMAGE_URLS array
   const getImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,9 +44,16 @@ const ImageCanvas = (props: Props) => {
     }
 
     // Clear out previous values.
-    setLabel(`Inferencing...`);
-    setConfidence("");
-    setInferenceTime("");
+    setWaiting(`Inferencing...`);
+    setRLabel("");
+    setRConfidence("");
+    setRTime("");
+    setMLabel("");
+    setMConfidence("");
+    setMTime("");
+    setALabel("");
+    setAConfidence("");
+    setATime("");
 
     // Draw the image on the canvas
     const canvas = canvasRef.current;
@@ -52,16 +69,36 @@ const ImageCanvas = (props: Props) => {
   const submitInference = async () => {
 
     // Get the image data from the canvas and submit inference.
-    var [inferenceResult,inferenceTime] = await inference(image.src);
+    var resultsObj = await inference(image.src);
+    setWaiting("");
 
-    // Get the highest confidence.
-    var topResult = inferenceResult[0];
+    // Res-Net
+    if (resultsObj['resnet'][0] > 0.5) {
+      setRLabel("Healthy");
+    } else {
+      setRLabel("Diseased");
+    }
+    setRConfidence(resultsObj['resnet'][0].toFixed(5));
+    setRTime(`Inference speed: ${resultsObj['resnet'][1]}s`);
 
-    // Update the label and confidence
-    setLabel(topResult.name.toUpperCase());
-    setConfidence(topResult.probability);
-    setInferenceTime(`Inference speed: ${inferenceTime} seconds`);
+    // MobileNet
+    if (resultsObj['resnet'][0] > 0.5) {
+      setMLabel("Healthy");
+    } else {
+      setMLabel("Diseased");
+    }
+    setMConfidence(resultsObj['mobilenet'][0].toFixed(5));
+    setMTime(`Inference speed: ${resultsObj['mobilenet'][1]}s`);
 
+    // AlexNet
+    if (resultsObj['alexnet'][0] > 0.5) {
+      setALabel("Healthy");
+    } else {
+      setALabel("Diseased");
+    }
+    setAConfidence(resultsObj['alexnet'][0].toFixed(5));
+    setATime(`Inference speed: ${resultsObj['alexnet'][1]}s`);
+    
   };
 
   return (
@@ -81,8 +118,24 @@ const ImageCanvas = (props: Props) => {
       </Button> */}
       <br/>
       <canvas ref={canvasRef} width={props.width} height={props.height} />
-      <span>{topResultLabel} {topResultConfidence}</span>
-      <span>{inferenceTime}</span>
+      <Row>
+        {waiting && <span>{waiting}</span>}
+        <Col className={styles.colBox}>
+          {rLabel && <h4>Res-Net 18:</h4>}
+          {rLabel && <span>{rLabel} | Confidence: {rConfidence}</span>}
+          <span className={styles.block}>{rTime}</span>
+        </Col>
+        <Col className={styles.colBox}>
+          {mLabel && <h4>MobileNetV3:</h4>}
+          {mLabel && <span>{mLabel} | Confidence: {mConfidence}</span>}
+          <span className={styles.block}>{mTime}</span>
+        </Col>
+        <Col className={styles.colBox}>
+          {aLabel && <h4>AlexNet:</h4>}
+          {aLabel && <span>{aLabel} | Confidence: {aConfidence}</span>}
+          <span className={styles.block}>{aTime}</span>
+        </Col>
+      </Row>
     </>
   )
 

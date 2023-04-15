@@ -2,13 +2,13 @@ import * as ort from 'onnxruntime-web';
 import _ from 'lodash';
 import { imagenetClasses } from '../data/imagenet';
 
-export async function runModel(preprocessedData: any): Promise<[any, number]> {
-  
+export async function runModel(preprocessedData: any, modelName: String): Promise<[any, number]> {
+
   // Create session and set options. See the docs here for more options: 
   //https://onnxruntime.ai/docs/api/js/interfaces/InferenceSession.SessionOptions.html#graphOptimizationLevel
   const session = await ort.InferenceSession
-                          .create('./_next/static/chunks/pages/squeezenet1_1.onnx', 
-                          { executionProviders: ['webgl'], graphOptimizationLevel: 'all' });
+                          .create(`./_next/static/chunks/pages/${modelName}.onnx`, 
+                          { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
   console.log('Inference session created')
   // Run inference and get results.
   var [results, inferenceTime] =  await runInference(session, preprocessedData);
@@ -30,11 +30,11 @@ async function runInference(session: ort.InferenceSession, preprocessedData: any
   const inferenceTime = (end.getTime() - start.getTime())/1000;
   // Get output results with the output name from the model export.
   const output = outputData[session.outputNames[0]];
-  //Get the softmax of the output data. The softmax transforms values to be between 0 and 1
-  var outputSoftmax = softmax(Array.prototype.slice.call(output.data));
-  
-  //Get the top 5 results.
-  var results = imagenetClassesTopK(outputSoftmax, 5);
+  console.log("output: ", output);
+  //Get the sigmoid of the output data
+  var outputSigmoid = sigmoid(Array.prototype.slice.call(output.data));
+
+  var results = outputSigmoid;
   console.log('results: ', results);
   return [results, inferenceTime];
 }
@@ -50,6 +50,13 @@ function softmax(resultArray: number[]): any {
     return Math.exp(resultValue - largestNumber) / sumOfExp;
   });
 }
+function sigmoid(resultArray: number[]): any {
+  // Select first item from result array
+  const res = resultArray[0];
+  const sig = 1 / (1 + Math.exp(-1 * res));
+  return sig;
+}
+
 /**
  * Find top k imagenet classes
  */
