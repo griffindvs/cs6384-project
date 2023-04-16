@@ -122,18 +122,22 @@ const ImageCanvas = (props: Props) => {
         {waiting && <span>{waiting}</span>}
         <Col className={styles.colBox}>
           {rLabel && <h4>Res-Net 18:</h4>}
+          {rLabel && <span className={styles.block}>44.7 MB</span>}
           {rLabel && <span>{rLabel} | Confidence: {rConfidence}</span>}
-          <span className={styles.block}>{rTime}</span>
+          {rLabel && <span className={styles.block}>{rTime}</span>}
         </Col>
         <Col className={styles.colBox}>
           {mLabel && <h4>MobileNetV3:</h4>}
+          {mLabel && <span className={styles.block}>6.1 MB</span>}
           {mLabel && <span>{mLabel} | Confidence: {mConfidence}</span>}
-          <span className={styles.block}>{mTime}</span>
+          {mLabel && <span className={styles.block}>{mTime}</span>}
         </Col>
         <Col className={styles.colBox}>
           {aLabel && <h4>AlexNet:</h4>}
-          {aLabel && <span>{aLabel} | Confidence: {aConfidence}</span>}
-          <span className={styles.block}>{aTime}</span>
+          {aLabel && <span className={styles.block}>228 MB</span>}
+          {aLabel && <span className={styles.block}><em>Model file too large for GitHub Pages.</em></span>}
+          {/* {aLabel && <span>{aLabel} | Confidence: {aConfidence}</span>}
+          <span className={styles.block}>{aTime}</span> */}
         </Col>
       </Row>
     </>

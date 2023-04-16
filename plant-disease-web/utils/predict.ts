@@ -15,12 +15,12 @@ export async function inference(path: string): Promise<Prediction> {
   // 2. Run each model model
   const [rPred, rTime] = await runModel(imageTensor, 'resnet18-20');
   const [mPred, mTime] = await runModel(imageTensor, 'mobilenetv3-s-20');
-  const [aPred, aTime] = await runModel(imageTensor, 'resnet18-20');
+  // const [aPred, aTime] = await runModel(imageTensor, 'resnet18-20');
   // 3. Return predictions and the amount of time it took to inference.
   return {
     resnet: [rPred, rTime],
     mobilenet: [mPred, mTime],
-    alexnet: [aPred, aTime]
+    alexnet: [0, 0]
   }
 }
 
