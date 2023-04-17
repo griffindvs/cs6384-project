@@ -15,15 +15,15 @@ const ImageCanvas = (props: Props) => {
   const [waiting, setWaiting] = useState("");
 
   const [rLabel, setRLabel] = useState("");
-  const [rConfidence, setRConfidence] = useState("");
+  const [rConfidence, setRConfidence] = useState(0);
   const [rTime, setRTime] = useState("");
 
   const [mLabel, setMLabel] = useState("");
-  const [mConfidence, setMConfidence] = useState("");
+  const [mConfidence, setMConfidence] = useState(0);
   const [mTime, setMTime] = useState("");
 
   const [aLabel, setALabel] = useState("");
-  const [aConfidence, setAConfidence] = useState("");
+  const [aConfidence, setAConfidence] = useState(0);
   const [aTime, setATime] = useState("");
   
   // Load the image from the IMAGE_URLS array
@@ -46,13 +46,13 @@ const ImageCanvas = (props: Props) => {
     // Clear out previous values.
     setWaiting(`Inferencing...`);
     setRLabel("");
-    setRConfidence("");
+    setRConfidence(0);
     setRTime("");
     setMLabel("");
-    setMConfidence("");
+    setMConfidence(0);
     setMTime("");
     setALabel("");
-    setAConfidence("");
+    setAConfidence(0);
     setATime("");
 
     // Draw the image on the canvas
@@ -78,7 +78,7 @@ const ImageCanvas = (props: Props) => {
     } else {
       setRLabel("Diseased");
     }
-    setRConfidence(resultsObj['resnet'][0].toFixed(5));
+    setRConfidence(resultsObj['resnet'][0]);
     setRTime(`Inference speed: ${resultsObj['resnet'][1]}s`);
 
     // MobileNet
@@ -87,7 +87,7 @@ const ImageCanvas = (props: Props) => {
     } else {
       setMLabel("Diseased");
     }
-    setMConfidence(resultsObj['mobilenet'][0].toFixed(5));
+    setMConfidence(resultsObj['mobilenet'][0]);
     setMTime(`Inference speed: ${resultsObj['mobilenet'][1]}s`);
 
     // AlexNet
@@ -96,7 +96,7 @@ const ImageCanvas = (props: Props) => {
     } else {
       setALabel("Diseased");
     }
-    setAConfidence(resultsObj['alexnet'][0].toFixed(5));
+    setAConfidence(resultsObj['alexnet'][0]);
     setATime(`Inference speed: ${resultsObj['alexnet'][1]}s`);
     
   };
@@ -123,13 +123,13 @@ const ImageCanvas = (props: Props) => {
         <Col className={styles.colBox}>
           {rLabel && <h4>Res-Net 18:</h4>}
           {rLabel && <span className={styles.block}>44.7 MB</span>}
-          {rLabel && <span>{rLabel} | Confidence: {rConfidence}</span>}
+          {rLabel && <span>{rLabel} | Confidence: {(Math.abs(rConfidence-.5)*2.0).toFixed(5)}</span>}
           {rLabel && <span className={styles.block}>{rTime}</span>}
         </Col>
         <Col className={styles.colBox}>
           {mLabel && <h4>MobileNetV3:</h4>}
           {mLabel && <span className={styles.block}>6.1 MB</span>}
-          {mLabel && <span>{mLabel} | Confidence: {mConfidence}</span>}
+          {mLabel && <span>{mLabel} | Confidence: {(Math.abs(mConfidence-0.5)*2.0).toFixed(5)}</span>}
           {mLabel && <span className={styles.block}>{mTime}</span>}
         </Col>
         <Col className={styles.colBox}>
