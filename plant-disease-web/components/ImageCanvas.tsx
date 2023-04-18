@@ -8,23 +8,31 @@ interface Props {
   width: number;
 }
 
+type Prediction = {
+  efficientnet: [any, number],
+  resnet18: [any, number],
+  resnet50: [any, number],
+  mobilenetS: [any, number],
+  mobilenetL: [any, number],
+  alexnet: [any, number]
+};
+
+const initialPrediction = {
+  efficientnet: [0, 0],
+  resnet18: [0, 0],
+  resnet50: [0, 0],
+  mobilenetS: [0, 0],
+  mobilenetL: [0, 0],
+  alexnet: [0, 0]
+}
+
 const ImageCanvas = (props: Props) => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   var image: HTMLImageElement;
   const [waiting, setWaiting] = useState("");
 
-  const [rLabel, setRLabel] = useState("");
-  const [rConfidence, setRConfidence] = useState(0);
-  const [rTime, setRTime] = useState("");
-
-  const [mLabel, setMLabel] = useState("");
-  const [mConfidence, setMConfidence] = useState(0);
-  const [mTime, setMTime] = useState("");
-
-  const [aLabel, setALabel] = useState("");
-  const [aConfidence, setAConfidence] = useState(0);
-  const [aTime, setATime] = useState("");
+  const [results, setResults] = useState(initialPrediction);
   
   // Load the image from the IMAGE_URLS array
   const getImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,15 +53,6 @@ const ImageCanvas = (props: Props) => {
 
     // Clear out previous values.
     setWaiting(`Inferencing...`);
-    setRLabel("");
-    setRConfidence(0);
-    setRTime("");
-    setMLabel("");
-    setMConfidence(0);
-    setMTime("");
-    setALabel("");
-    setAConfidence(0);
-    setATime("");
 
     // Draw the image on the canvas
     const canvas = canvasRef.current;
@@ -70,34 +69,8 @@ const ImageCanvas = (props: Props) => {
 
     // Get the image data from the canvas and submit inference.
     var resultsObj = await inference(image.src);
+    setResults(resultsObj);
     setWaiting("");
-
-    // Res-Net
-    if (resultsObj['resnet'][0] > 0.5) {
-      setRLabel("Healthy");
-    } else {
-      setRLabel("Diseased");
-    }
-    setRConfidence(resultsObj['resnet'][0]);
-    setRTime(`Inference speed: ${resultsObj['resnet'][1]}s`);
-
-    // MobileNet
-    if (resultsObj['resnet'][0] > 0.5) {
-      setMLabel("Healthy");
-    } else {
-      setMLabel("Diseased");
-    }
-    setMConfidence(resultsObj['mobilenet'][0]);
-    setMTime(`Inference speed: ${resultsObj['mobilenet'][1]}s`);
-
-    // AlexNet
-    if (resultsObj['alexnet'][0] > 0.5) {
-      setALabel("Healthy");
-    } else {
-      setALabel("Diseased");
-    }
-    setAConfidence(resultsObj['alexnet'][0]);
-    setATime(`Inference speed: ${resultsObj['alexnet'][1]}s`);
     
   };
 
@@ -118,28 +91,50 @@ const ImageCanvas = (props: Props) => {
       </Button> */}
       <br/>
       <canvas ref={canvasRef} width={props.width} height={props.height} />
+      {waiting && <span>{waiting}</span>}
+      {results['mobilenetS'][0] !== 0 && 
       <Row>
-        {waiting && <span>{waiting}</span>}
         <Col className={styles.colBox}>
-          {rLabel && <h4>Res-Net 18:</h4>}
-          {rLabel && <span className={styles.block}>44.7 MB</span>}
-          {rLabel && <span>{rLabel} | Confidence: {(Math.abs(rConfidence-.5)*2.0).toFixed(5)}</span>}
-          {rLabel && <span className={styles.block}>{rTime}</span>}
+          <h4>MobileNetV3 (Small):</h4>
+          <span className={styles.block}>6.1 MB</span>
+          <span>{results['mobilenetS'][0] > 0.5 ? "Healthy" : "Diseased"} | Confidence: {(Math.abs(results['mobilenetS'][0]-0.5)*2.0).toFixed(5)}</span>
+          <span className={styles.block}>Time: {results['mobilenetS'][1]}s</span>
         </Col>
         <Col className={styles.colBox}>
-          {mLabel && <h4>MobileNetV3:</h4>}
-          {mLabel && <span className={styles.block}>6.1 MB</span>}
-          {mLabel && <span>{mLabel} | Confidence: {(Math.abs(mConfidence-0.5)*2.0).toFixed(5)}</span>}
-          {mLabel && <span className={styles.block}>{mTime}</span>}
+          <h4>MobileNetV3 (Large):</h4>
+          <span className={styles.block}>16.8 MB</span>
+          <span>{results['mobilenetL'][0] > 0.5 ? "Healthy" : "Diseased"} | Confidence: {(Math.abs(results['mobilenetL'][0]-0.5)*2.0).toFixed(5)}</span>
+          <span className={styles.block}>Time: {results['mobilenetL'][1]}s</span>
         </Col>
         <Col className={styles.colBox}>
-          {aLabel && <h4>AlexNet:</h4>}
-          {aLabel && <span className={styles.block}>228 MB</span>}
-          {aLabel && <span className={styles.block}><em>Model file too large for GitHub Pages.</em></span>}
+          <h4>EfficientNet-B4:</h4>
+          <span className={styles.block}>70.1 MB</span>
+          <span>{results['efficientnet'][0] > 0.5 ? "Healthy" : "Diseased"} | Confidence: {(Math.abs(results['efficientnet'][0]-0.5)*2.0).toFixed(5)}</span>
+          <span className={styles.block}>Time: {results['efficientnet'][1]}s</span>
+        </Col>
+      </Row> }
+      {results['mobilenetS'][0] !== 0 && 
+      <Row>
+        <Col className={styles.colBox}>
+          <h4>Res-Net 18:</h4>
+          <span className={styles.block}>44.7 MB</span>
+          <span>{results['resnet18'][0] > 0.5 ? "Healthy" : "Diseased"} | Confidence: {(Math.abs(results['resnet18'][0]-.5)*2.0).toFixed(5)}</span>
+          <span className={styles.block}>Time: {results['resnet18'][1]}s</span>
+        </Col>
+        <Col className={styles.colBox}>
+          <h4>Res-Net 50:</h4>
+          <span className={styles.block}>94 MB</span>
+          <span>{results['resnet50'][0] > 0.5 ? "Healthy" : "Diseased"} | Confidence: {(Math.abs(results['resnet50'][0]-.5)*2.0).toFixed(5)}</span>
+          <span className={styles.block}>Time: {results['resnet50'][1]}s</span>
+        </Col>
+        <Col className={styles.colBox}>
+          <h4>AlexNet:</h4>
+          <span className={styles.block}>228 MB</span>
+          <span className={styles.block}><em>Model file too large for GitHub Pages.</em></span>
           {/* {aLabel && <span>{aLabel} | Confidence: {aConfidence}</span>}
           <span className={styles.block}>{aTime}</span> */}
         </Col>
-      </Row>
+      </Row> }
     </>
   )
 
