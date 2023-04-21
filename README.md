@@ -48,5 +48,5 @@ This repository applies transfer learning on pre-trained classification models t
 
 ## Additional Scripts
 - `data_merge.py`: parses the original datasets and creates a merged directory `./data` with a subdirectory for each type of plant. Images are labeled as `healthy-i.jpg` or `diseased-i.jpg`
-- `create_train_test.py`: given `./data`, creates a new directory `./dataset` with train/test split and a subdirectory for `healthy` and `diseased` images so its compatible `torchvision.datasets.ImageFolder`
-- `utils.py`: contains training and test functions called from `leaf_classification.ipynb` to create a binary classifier
+- `create_train_test.py`: creates a new directory `./dataset` given `./data` with train/test split and a subdirectory for `healthy` and `diseased` images so its compatible `torchvision.datasets.ImageFolder`
+- `utils.py`: contains training and test functions called by `leaf_classification.ipynb` to create a binary classifier
