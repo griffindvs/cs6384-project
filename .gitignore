@@ -14,5 +14,6 @@
 /metrics/*
 /models/*
 /runs/*
+/converted/*
 
 /__pycache__/*
